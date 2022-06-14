@@ -43,7 +43,7 @@ variable "resource_group_location" {
 
 locals {
 
-  subscription_id                 = "<<Insert Azure subscription_id"
+  subscription_id                 = "<<Insert Azure subscription_id>>"
   resource_prefix                 = "${var.project}-${var.env}-${var.region}"
   rg                              = "${local.resource_prefix}-rg"
   
