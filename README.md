@@ -1,7 +1,7 @@
 # cloud-monitoring-platform
 'cloud-monitoring-platform' is a highly available centralized monitoring product on Azure cloud which has advanced security, alerting and visualization features and is equipped with fully automated installation capabilities for various end-customers.
 
-##Resource provisioning:
+## Resource provisioning:
 The resource provisioning is done using Terraform.
 
 The below is the list of Azure resources created:
