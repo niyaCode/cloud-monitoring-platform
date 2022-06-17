@@ -8,6 +8,7 @@ The below is the list of Azure resources created:
 
 - Resource Group
 - VNets, Subnets
+- Azure Keyvault
 - VMs ( for Prometheus and Central exporters)
 - VM Scale Set ( for Cortex, Cassandra and Grafana)
 - Azure internal Load balancer
