@@ -1,0 +1,65 @@
+# my global config
+global:
+  scrape_interval:     45s # Set the scrape interval to every 45 seconds. Default is every 1 minute.
+  evaluation_interval: 45s # Evaluate rules every 45 seconds. The default is every 1 minute.
+  external_labels:
+      cluster: 'prom-us-cluster'
+      __replica__: "us-prom1"
+# scrape_timeout is set to the global default (10s).
+  scrape_timeout: 45s
+# settings related to the remote write feature
+remote_write: 
+- url: http://10.241.16.150:9009/api/prom/push
+  
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+        - localhost:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert_rules_amm.yml"
+  - "alert_rules_blackbox.yml"
+  - "alert_rules_azure.yml"
+  - "alert_rules_node.yml"
+#  - "alert_rules_wmi.yml"
+  - "alert_rules_window.yml"
+  - "alert_rules_oracle.yml"
+#  - "second_rules.yml"
+#  - "alert_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  #- job_name: prometheus
+  # honor_labels:true
+
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    file_sd_configs:
+      - files:
+          - /usr/local/bin/prometheus/target.yml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: __address__
+        replacement: 1.2.3.4:9115  #IP of the server on which Blackox is running.
+
+  - job_name: 'blackbox_icmp'
+    metrics_path: /probe
+    params:
+      module: [icmp_ipv4]
+    file_sd_configs:
+      - files:
+          - /usr/local/bin/prometheus/target1.yml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: __address__
+        replacement: 10.241.9.39:9115  # The blackbox exporter's real hostname:port.

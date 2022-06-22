@@ -1,0 +1,73 @@
+---
+
+# - hosts: grafana
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - grafana
+- hosts: prometheus
+  become: yes
+  become_method: sudo
+  roles:
+    - prometheus
+#  - hosts: prometheus-us:prometheus-eu
+#    become: yes
+#    become_method: sudo
+#    roles:
+#      - alert-manager
+# - hosts: cortex-us:cortex-eu
+#   become: yes
+#   roles:
+#    - etcd
+# - hosts: cortex-us:cortex-eu
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - cortex
+# - hosts: cassandra-us:cassandra-eu
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - cassandra
+# - hosts: grafana-us
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - grafana
+# - hosts: grafana-eu
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - grafana-integration
+# - hosts: grafana-us
+#   become: yes
+#   become_method: sudo
+#   roles:
+#     - grafana-integration
+# - hosts: grafana-us:grafana-eu
+#   become: yes
+#   roles:
+#     - node-exporter
+# - hosts: prometheus-us:prometheus-eu
+#   become: yes
+#   roles:
+#     - node-exporter
+# - hosts: cortex-us:cortex-eu
+#   become: yes
+#   roles:
+#     - node-exporter
+# - hosts: cassandra-us:cassandra-eu
+#   become: yes
+#   roles:
+#     - node-exporter
+#- hosts: exporter-us:exporter-eu
+#  become: yes
+#  roles:
+#    - node-exporter
+#- hosts: windows-us:windows-eu
+#  gather_facts: no
+#  roles:
+#    - wmi-exporter
+# - hosts: localhost
+#   roles:
+#     - lb-integration

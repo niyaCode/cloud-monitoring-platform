@@ -1,0 +1,30 @@
+---
+
+  - name: Download prometheus package
+    unarchive:
+      src: '{{ prometheus_download_link }}'
+      dest: /tmp/
+      remote_src: yes
+  - name: Copy prometheus binary files to /usr/local/bin/
+    copy:
+      src: '/tmp/prometheus-{{ version }}.linux-amd64/'
+      dest:  /usr/local/bin/prometheus
+      remote_src: yes
+  - name: Copy prometheus.service to /etc/systemd/system
+    template:
+      src: prometheus.service
+      dest: /etc/systemd/system/
+      
+  - name: Delete prometheus tmp folder
+    file:
+      path: '/tmp/prometheus-{{ version }}.linux-amd64'
+      state: absent
+    
+
+  - name: Start prometheus as service
+    service:
+      name: prometheus
+      state: started
+      enabled: yes
+
+

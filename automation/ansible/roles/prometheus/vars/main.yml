@@ -1,0 +1,4 @@
+---
+prometheus_download_link: https://github.com/prometheus/prometheus/releases/download/v2.21.0/prometheus-2.21.0.linux-amd64.tar.gz
+version: 2.21.0
+

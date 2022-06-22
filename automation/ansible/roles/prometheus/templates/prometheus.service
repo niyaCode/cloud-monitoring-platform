@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/prometheus/prometheus --config.file=/usr/local/bin/prometheus/prometheus.yml \
+--storage.tsdb.path='/prometheus_data' \
+--storage.tsdb.retention.time=10d \
+
+[Install]
+WantedBy=multi-user.target
