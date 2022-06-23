@@ -1,10 +1,10 @@
 ---
 
-# - hosts: grafana
-#   become: yes
-#   become_method: sudo
-#   roles:
-#     - grafana
+- hosts: grafana
+  become: yes
+  become_method: sudo
+  roles:
+    - grafana
 - hosts: prometheus
   become: yes
   become_method: sudo
