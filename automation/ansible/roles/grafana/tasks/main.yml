@@ -1,11 +1,5 @@
 ---
 
-  # - name: Execute the shell script grafana-update.sh
-  #   local_action: script files/grafana-update.sh {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
-  #   #become: true
-  #   #become_user: gitlab-runner
-  #   register: psk
-
   - name: install grafana-server from a .deb on the internet
     apt:
       deb: '{{ grafana_deb_package }}'
@@ -19,27 +13,6 @@
       src: files/grafana.ini
       dest: /etc/grafana/
   
-  # - name: download certificate BaltimoreCyberTrustRoot.crt.pem
-  #   shell: wget https://www.digicert.com/CACerts/BaltimoreCyberTrustRoot.crt.pem
-
-  # - name: copy certificate BaltimoreCyberTrustRoot.crt.pem
-  #   shell: cp BaltimoreCyberTrustRoot.crt.pem /etc/ssl/certs/BaltimoreCyberTrustRoot.crt.pem
-  
-  # - name: Copy grafana mounting shell script to tmp
-  #   copy:
-  #     src: grafana-disk-mount.sh
-  #     dest: /tmp/
-
-  # - name: Executing the grafana mounting shell script
-  #   script: grafana-disk-mount.sh 
-  #  # shell: grafana-disk-mount.sh
-  #   args:
-  #     chdir: /tmp/
-  
-  # - name: Delete grafana-disk-mount.sh from tmp folder
-  #   file:
-  #     path: '/tmp/grafana-disk-mount.sh'
-  #     state: absent
 
   - name: Copy grafana-server.service to /usr/lib/systemd/system
     template:
