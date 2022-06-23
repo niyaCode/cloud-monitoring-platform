@@ -12,8 +12,5 @@ cp /tmp/cloud-monitoring-platform/automation/ansible/cmp.yml .
 cp -r /tmp/cloud-monitoring-platform/automation/ansible/roles .
 . export-variables.sh
 echo $ENV
-# echo $CLIENT_ID
-# echo $CLIENT_SECRET
-# echo $TENANT_ID
 ansible-playbook -i inventory.cfg cmp.yml
 
