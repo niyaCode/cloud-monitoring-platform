@@ -33,13 +33,21 @@ resource "azurerm_public_ip" "pubip" {
   location            = data.azurerm_resource_group.mgmt.location
   sku                 = "Basic"
   resource_group_name = data.azurerm_resource_group.mgmt.name
-  allocation_method   = "Static"
+  allocation_method   = "Dynamic"
+}
+
+resource "azurerm_public_ip" "appgtwy-pubip" {
+  name                = "${local.resource_prefix}-appgtwy-pub-ip"
+  location            = data.azurerm_resource_group.mgmt.location
+  sku                 = "Basic"
+  resource_group_name = data.azurerm_resource_group.mgmt.name
+  allocation_method   = "Dynamic"
 }
 
 ################### LINUX VM CREATION  ###########################
 
 #KV Secret
-data "azurerm_key_vault_secret" "vm_password" {
+data "azurerm_key_vault_secret" "linux_vm_password" {
   for_each = var.vm-app
   name         = each.value.password_key
   key_vault_id = "${data.azurerm_key_vault.kv.id}"
@@ -103,7 +111,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
   os_profile {
     computer_name  = "${local.resource_prefix}-${each.key}-vm"
     admin_username = each.value.userid
-    admin_password = "${data.azurerm_key_vault_secret.vm_password[each.key].value}"
+    admin_password = "${data.azurerm_key_vault_secret.linux_vm_password[each.key].value}"
   }
 
   os_profile_linux_config {
@@ -112,7 +120,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
   tags = {
     environment   = var.env
 	  location      = var.region
-	  #customercode  = local.cust_code
+	  customercode  = local.cust_code
 	  application   = each.value.application    
   }
 }
@@ -176,18 +184,18 @@ resource "azurerm_linux_virtual_machine_scale_set" "mgmt" {
   tags = {
       environment   = var.env
 	    location      = var.region
-	    #customercode  = local.cust_code
+	    customercode  = local.cust_code
 	    application   = each.value.application 
   }
 }
 
-# ################### LOAD BALANCER CREATION   ###########################
+################### LOAD BALANCER CREATION   ###########################
 
-# # data "azurerm_subnet" "lb_subnet" {
-# #   name                 = local.lb_subnet
-# #   resource_group_name  = data.azurerm_resource_group.mgmt.name
-# #   virtual_network_name = data.azurerm_virtual_network.mgmtnetwork.name
-# # }
+# data "azurerm_subnet" "lb_subnet" {
+#   name                 = local.lb_subnet
+#   resource_group_name  = data.azurerm_resource_group.mgmt.name
+#   virtual_network_name = data.azurerm_virtual_network.mgmtnetwork.name
+# }
 
 # resource "azurerm_lb" "main" {
 #   name                = "${local.resource_prefix}-lb"
@@ -237,3 +245,84 @@ resource "azurerm_linux_virtual_machine_scale_set" "mgmt" {
 # }
 
 
+##################### APPLICATION GATEWAY CREATION ####################################
+
+# data "azurerm_key_vault_secret" "ssl_cert_password" {
+#   name         = local.ssl_cert_pass_key
+#   key_vault_id = "${data.azurerm_key_vault.keyvault.id}"
+# }
+
+data "azurerm_subnet" "apgtwy_subnet" {
+  name                 = local.apgtwy_subnet
+  resource_group_name  = data.azurerm_resource_group.mgmt.name
+  virtual_network_name = data.azurerm_virtual_network.mgmtnetwork.name
+}
+
+resource "azurerm_application_gateway" "main" {
+  name                = "${local.resource_prefix}-apgtwy"
+  resource_group_name = data.azurerm_resource_group.mgmt.name
+  location            = data.azurerm_resource_group.mgmt.location
+
+  sku {
+    name     = local.sku_name
+    tier     = local.sku_tier
+    capacity = 1
+  }
+  # autoscale_configuration {
+  #   min_capacity = local.min_capacity
+  #   max_capacity = local.max_capacity
+  # }
+
+  gateway_ip_configuration {
+    name      = "apgtwy-ipconfig"
+    subnet_id = data.azurerm_subnet.apgtwy_subnet.id
+  }
+
+  frontend_port {
+    name = local.frontend_port_name
+    port = 3000
+  }
+
+  frontend_ip_configuration {
+    name                 = local.frontend_ip_configuration_name
+    public_ip_address_id = azurerm_public_ip.appgtwy-pubip.id
+  }
+
+  backend_address_pool {
+    name = local.backend_address_pool_name
+  }
+
+  backend_http_settings {
+    name                  = local.http_setting_name
+    cookie_based_affinity = "Disabled"
+    port                  = 3000
+    protocol              = "Http"
+    request_timeout       = 60
+  }
+
+  http_listener {
+    name                           = local.listener_name
+    frontend_ip_configuration_name = local.frontend_ip_configuration_name
+    frontend_port_name             = local.frontend_port_name
+    protocol                       = "Http"
+    #ssl_certificate_name           = "${local.resource_prefix}-sslcert"
+  }
+  # ssl_certificate {
+  #   name                           = "${local.resource_prefix}-sslcert"
+  #   data                           = filebase64(local.ssl_cert_file)
+  #   password                       = "${data.azurerm_key_vault_secret.ssl_cert_password.value}"
+  # }
+
+  request_routing_rule {
+    name                       = local.request_routing_rule_name
+    rule_type                  = "Basic"
+    http_listener_name         = local.listener_name
+    backend_address_pool_name  = local.backend_address_pool_name
+    backend_http_settings_name = local.http_setting_name
+  }
+  tags = {
+    environment = var.env
+	  location    = var.region
+	  cust_code   = local.cust_code
+  }
+}

@@ -1,3 +1,18 @@
+variable "tfspn_client_id" {
+  default = "<<Insert tfspn_client_id>>"
+  description   = "Terraform spn client id"
+}
+
+variable "tfspn_client_secret" {
+  default = "<<Insert tfspn_client_secret>>"
+  description   = "Terraform spn client secret"
+}
+
+variable "azure_tenant_id" {
+  default = "<<Insert azure_tenant_id>>"
+  description   = "Azure tenant Id"
+}
+
 variable "project" {
   description = "Project Code or Name"
   type        = string
@@ -16,21 +31,6 @@ variable "region" {
   default     = "in"
 }
 
-variable "tfspn_client_id" {
-  default = "<<Insert tfspn_client_id>>"
-  description   = "Terraform spn client id"
-}
-
-variable "tfspn_client_secret" {
-  default = "<<Insert tfspn_client_secret>>"
-  description   = "Terraform spn client secret"
-}
-
-variable "azure_tenant_id" {
-  default = "<<Insert azure_tenant_id>>"
-  description   = "Azure tenant Id"
-}
-
 variable "resource_group_name_prefix" {
   default       = "rg"
   description   = "Prefix of the resource group name that's combined with a random ID so name is unique in your Azure subscription."
@@ -47,9 +47,25 @@ locals {
   resource_prefix                 = "${var.project}-${var.env}-${var.region}"
   rg                              = "${local.resource_prefix}-rg"
   kv                              = "${local.resource_prefix}-kv"
+  cust_code                       = "custmon"
+  ##### Network and subnet related variables
   mgmtVnet                        = "${local.resource_prefix}-mgmtVnet"
   promSubnet                      = "${local.resource_prefix}-prom-subnet"
   lb_subnet                       = "${local.resource_prefix}-prom-subnet"
+  apgtwy_subnet                  =  "${local.resource_prefix}-appgw-subnet"
+  ##### Application Gateway related variables  
+  backend_address_pool_name      = "${local.resource_prefix}-beap"
+  frontend_port_name             = "${local.resource_prefix}-feport"
+  frontend_ip_configuration_name = "${local.resource_prefix}-feip"
+  http_setting_name              = "${local.resource_prefix}-be-htsn"
+  listener_name                  = "${local.resource_prefix}-httplstn"
+  request_routing_rule_name      = "${local.resource_prefix}-rqrt"
+  sku_name                       = "Standard_Small"
+  sku_tier                       = "Standard"
+  min_capacity                   = "1"
+  max_capacity                   = "2"
+  # ssl_cert_file                  = "certificate-to-import.pfx"
+  # ssl_cert_pass_key              = "ssl-cert-password"   
   
 }
 
